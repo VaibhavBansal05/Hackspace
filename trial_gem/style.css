@@ -1,0 +1,158 @@
+/* General Body Styles */
+body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background-color: #f0f2f5;
+    color: #333;
+    margin: 0;
+    padding: 20px;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    min-height: 100vh;
+}
+
+/* Main Container */
+.container {
+    background-color: #ffffff;
+    padding: 30px;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    width: 100%;
+    max-width: 800px;
+    text-align: center;
+}
+
+h1 {
+    color: #1e3a8a; /* A nice deep blue */
+    margin-bottom: 10px;
+}
+
+p {
+    color: #555;
+    margin-bottom: 25px;
+}
+
+/* Input Group */
+.input-group {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+#route-input {
+    flex-grow: 1;
+    padding: 12px 15px;
+    font-size: 16px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    transition: border-color 0.3s, box-shadow 0.3s;
+}
+
+#route-input:focus {
+    outline: none;
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+}
+
+#get-weather-btn {
+    padding: 12px 20px;
+    font-size: 16px;
+    font-weight: bold;
+    color: #fff;
+    background-color: #3b82f6; /* A vibrant blue */
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+#get-weather-btn:hover {
+    background-color: #2563eb;
+}
+
+/* Loader Animation */
+.loader {
+    border: 5px solid #f3f3f3;
+    border-top: 5px solid #3b82f6;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    animation: spin 1s linear infinite;
+    margin: 20px auto;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Weather Summary Section */
+#weather-summary {
+    text-align: left;
+    margin-top: 20px;
+}
+
+/* Alert/Error Styling */
+.alert {
+    padding: 15px;
+    margin-bottom: 15px;
+    border-radius: 8px;
+    font-weight: bold;
+}
+
+.alert-danger {
+    background-color: #f8d7da;
+    color: #721c24;
+    border: 1px solid #f5c6cb;
+}
+
+.alert-warning {
+    background-color: #fff3cd;
+    color: #856404;
+    border: 1px solid #ffeeba;
+}
+
+/* METAR Card Styling */
+.metar-card {
+    background-color: #fafafa;
+    border-left: 5px solid; /* Color will be set by JS */
+    padding: 15px;
+    margin-bottom: 15px;
+    border-radius: 0 8px 8px 0;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+.metar-card h3 {
+    margin-top: 0;
+    margin-bottom: 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.metar-card .flight-category {
+    font-size: 14px;
+    font-weight: bold;
+    padding: 4px 8px;
+    border-radius: 12px;
+    color: #fff;
+}
+
+.metar-card p {
+    margin: 5px 0;
+    font-size: 15px;
+    color: #333;
+}
+
+/* Flight Category Colors */
+.vfr { border-color: #22c55e; } /* Green */
+.vfr .flight-category { background-color: #22c55e; }
+
+.mvfr { border-color: #3b82f6; } /* Blue */
+.mvfr .flight-category { background-color: #3b82f6; }
+
+.ifr { border-color: #ef4444; } /* Red */
+.ifr .flight-category { background-color: #ef4444; }
+
+.lifr { border-color: #a855f7; } /* Purple */
+.lifr .flight-category { background-color: #a855f7; }

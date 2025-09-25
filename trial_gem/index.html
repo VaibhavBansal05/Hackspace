@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flight Weather Briefing</title>
+    <link rel="stylesheet" href="style.css">
+    
+    </head>
+<body>
+
+    <main class="container">
+        <h1>✈️ Flight Weather Briefing</h1>
+        <p>Enter a flight route using ICAO codes (e.g., KLAX, KDEN, KJFK) to get a real-time weather summary.</p>
+
+        <div class="input-group">
+            <input type="text" id="route-input" placeholder="Enter ICAO codes separated by commas">
+            <button id="get-weather-btn">Get Summary</button>
+        </div>
+
+        <div id="loader" class="loader" style="display: none;"></div>
+
+        <div id="weather-summary">
+            </div>
+    </main>
+
+    <script type="module" src="script.js"></script>
+</body>
+</html>
