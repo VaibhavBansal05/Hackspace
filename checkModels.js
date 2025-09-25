@@ -1,37 +1,40 @@
-// checkModels.js
-
-// Load environment variables from .env file
 require('dotenv').config();
-
 const { GoogleGenerativeAI } = require("@google/generative-ai");
 
-// Get the API key from the environment variables
 const apiKey = process.env.GEMINI_API_KEY;
 if (!apiKey) {
-  throw new Error("GEMINI_API_KEY is not set in the .env file");
+  throw new Error("GEMINI_API_KEY is not set in your .env file");
 }
 
 const genAI = new GoogleGenerativeAI(apiKey);
 
-async function listModels() {
-  console.log("Fetching available models...\n");
+async function listMyModels() {
+  console.log("Attempting to fetch your available models...");
+
   try {
-    // The listModels() method returns an array of model objects
     const result = await genAI.getGenerativeModel({model: ""}).listModels();
     
-    console.log("Models available for generateContent:");
+    let foundModels = false;
     console.log("------------------------------------");
-
+    console.log("Models you can use for 'generateContent':");
+    
     result.models.forEach(model => {
-      // Check if the model supports the 'generateContent' method
       if (model.supportedGenerationMethods.includes("generateContent")) {
-        console.log(model.name); // e.g., "models/gemini-1.0-pro"
+        console.log(" ->", model.name); // e.g., "models/gemini-1.0-pro"
+        foundModels = true;
       }
     });
 
+    if (!foundModels) {
+        console.log("\n--> No models supporting generateContent found for your API key.");
+    }
+    console.log("------------------------------------");
+
   } catch (error) {
-    console.error("Error listing models:", error);
+    console.error("\nCRITICAL ERROR: Failed to list models.");
+    console.error("This likely means there is a fundamental issue with your Google Cloud Project or API Key permissions.");
+    console.error("Full error details:", error.message);
   }
 }
 
-listModels();
+listMyModels();

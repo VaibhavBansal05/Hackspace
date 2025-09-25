@@ -4,7 +4,7 @@
 const { GoogleGenerativeAI } = require("@google/generative-ai");
 
 // Get your API key from Netlify's environment variables
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY2);
 
 exports.handler = async function (event, context) {
   if (event.httpMethod !== "POST") {
