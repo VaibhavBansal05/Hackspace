@@ -17,7 +17,7 @@ exports.handler = async function (event, context) {
       return { statusCode: 400, body: "Missing weather data or route" };
     }
 
-    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+    const model = genAI.getGenerativeModel({ model: "gemini-1.0-pro" });
 
     const prompt = `
     You are an expert aviation dispatcher. Analyze the following weather data for a flight from ${route[0]} to ${route[route.length - 1]}.
