@@ -1,5 +1,4 @@
-// Your final script.js file
-
+// Get references to our HTML elements
 const routeInput = document.getElementById('route-input');
 const getWeatherBtn = document.getElementById('get-weather-btn');
 const loader = document.getElementById('loader');
@@ -7,34 +6,30 @@ const finalSummaryDiv = document.getElementById('final-summary');
 const weatherSummaryDiv = document.getElementById('weather-summary');
 
 const AWC_API_BASE_URL = 'https://aviationweather.gov/api/data/';
-
-// This special path works automatically on Netlify to call your back-end function
 const YOUR_FUNCTION_URL = '/.netlify/functions/get-journey-briefing';
-
 
 getWeatherBtn.addEventListener('click', handleGetWeather);
 
 async function handleGetWeather() {
     const routeString = routeInput.value.trim();
     if (!routeString) {
-        displayError("Please enter at least one ICAO code.", finalSummaryDiv);
+        // --- CHANGE HERE ---
+        // We no longer pass the element to displayError
+        displayError("Please enter at least one ICAO code.");
         return;
     }
     const icaoCodes = routeString.split(',').map(code => code.trim().toUpperCase()).filter(Boolean);
 
-    // Clear previous results
     finalSummaryDiv.innerHTML = '';
     weatherSummaryDiv.innerHTML = '';
     loader.style.display = 'block';
 
     try {
-        // 1. Fetch all raw data from aviationweather.gov
         const [metarData, sigmetData] = await Promise.all([
             fetchMetarData(icaoCodes),
             fetchSigmetData()
         ]);
 
-        // 2. Send all data to our Netlify server for the final summary
         const response = await fetch(YOUR_FUNCTION_URL, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -42,31 +37,28 @@ async function handleGetWeather() {
         });
 
         if (!response.ok) {
-            throw new Error('The AI briefing server failed to respond. Check the function logs on Netlify.');
+            const errorText = await response.text();
+            throw new Error(`The AI briefing server failed: ${errorText}`);
         }
         
         const { summary } = await response.json();
-
-        // 3. Display the final AI-generated summary
         displayFinalSummary(summary);
-
-        // 4. Display the detailed per-airport cards for reference
         displayDetailedCards(metarData);
 
     } catch (error) {
         console.error("Error during briefing process:", error);
-        displayError(error.message, finalSummaryDiv);
+        // --- CHANGE HERE ---
+        displayError(error.message);
     } finally {
         loader.style.display = 'none';
     }
 }
 
 function displayFinalSummary(summary) {
-    let summaryClass = 'alert-info'; // Default
+    let summaryClass = 'alert-info';
     if (summary.startsWith('Unsafe')) summaryClass = 'alert-danger';
     if (summary.startsWith('Travel with caution')) summaryClass = 'alert-warning';
     if (summary.startsWith('Safe')) summaryClass = 'alert-success';
-
     finalSummaryDiv.innerHTML = `<div class="alert ${summaryClass}"><h3>Journey Assessment</h3><p>${summary}</p></div>`;
 }
 
@@ -91,7 +83,6 @@ function displayDetailedCards(metarData) {
     weatherSummaryDiv.innerHTML = html;
 }
 
-// Helper functions to fetch data from AWC with better logging
 async function fetchMetarData(icaoCodes) {
     const url = `${AWC_API_BASE_URL}metar?ids=${icaoCodes.join(',')}&format=json`;
     try {
@@ -120,6 +111,8 @@ async function fetchSigmetData() {
     }
 }
 
-function displayError(message, element) {
-    element.innerHTML = `<div class="alert alert-danger">${message}</div>`;
+// --- FINAL CORRECTED FUNCTION ---
+function displayError(message) {
+    // This function now always puts the error in the main summary div.
+    finalSummaryDiv.innerHTML = `<div class="alert alert-danger">${message}</div>`;
 }
