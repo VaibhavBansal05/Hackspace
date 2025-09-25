@@ -6,7 +6,7 @@ const finalSummaryDiv = document.getElementById('final-summary');
 const weatherSummaryDiv = document.getElementById('weather-summary');
 
 const AWC_API_BASE_URL = 'https://aviationweather.gov/api/data/';
-const YOUR_FUNCTION_URL = '/.netlify/functions/get-journey-briefing';
+const YOUR_FUNCTION_URL = '/.netlify/functions/get_journey-briefing';
 
 getWeatherBtn.addEventListener('click', handleGetWeather);
 
