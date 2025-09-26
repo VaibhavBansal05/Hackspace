@@ -194,18 +194,31 @@ async function fetchSigmetData() {
     }
 }
 
-async function fetchPirepData(icaoCodes) {
-    let url;
-    // If only one airport, search in a radius. If more than one, search along the route.
-    if (icaoCodes.length === 1) {
-        url = `${AWC_API_BASE_URL}pirep?format=json&hoursBeforeNow=1&distance=150&location=${icaoCodes[0]}`;
-    } else {
-        // The 'route' parameter only accepts two points. We'll use the first and last airports from the input.
-        const origin = icaoCodes[0];
-        const destination = icaoCodes[icaoCodes.length - 1];
-        url = `${AWC_API_BASE_URL}pirep?format=json&hoursBeforeNow=1&distance=50&route=${origin},${destination}`;
-    }
+// async function fetchPirepData(icaoCodes) {
+//     let url;
+//     // If only one airport, search in a radius. If more than one, search along the route.
+//     if (icaoCodes.length === 1) {
+//         url = `${AWC_API_BASE_URL}pirep?format=json&hoursBeforeNow=1&distance=150&location=${icaoCodes[0]}`;
+//     } else {
+//         // The 'route' parameter only accepts two points. We'll use the first and last airports from the input.
+//         const origin = icaoCodes[0];
+//         const destination = icaoCodes[icaoCodes.length - 1];
+//         url = `${AWC_API_BASE_URL}pirep?format=json&hoursBeforeNow=1&distance=50&route=${origin},${destination}`;
+//     }
 
+//     try {
+//         const response = await fetch(url);
+//         if (!response.ok) throw new Error(`Failed to fetch PIREP data. Status: ${response.status}`);
+//         return await response.json();
+//     } catch (error) {
+//         console.error("PIREP Fetch Error:", error);
+//         throw error;
+//     }
+// }
+async function fetchPirepData() {
+    // FINAL FIX: The route/location parameters are unreliable.
+    // We will fetch all recent PIREPs and let the AI filter for relevance.
+    const url = `${AWC_API_BASE_URL}pirep?format=json&hoursBeforeNow=1`;
     try {
         const response = await fetch(url);
         if (!response.ok) throw new Error(`Failed to fetch PIREP data. Status: ${response.status}`);
@@ -215,6 +228,7 @@ async function fetchPirepData(icaoCodes) {
         throw error;
     }
 }
+
 
 // --- Main application logic ---
 async function handleGetWeather() {
