@@ -27,6 +27,14 @@ h1 {
     margin-bottom: 10px;
 }
 
+h2 {
+    text-align: left;
+    color: #333;
+    border-bottom: 2px solid #eee;
+    padding-bottom: 10px;
+    margin-top: 30px;
+}
+
 p {
     color: #555;
     margin-bottom: 25px;
@@ -98,6 +106,13 @@ p {
     margin-bottom: 15px;
     border-radius: 8px;
     font-weight: bold;
+    text-align: left;
+}
+.alert h3 {
+    margin-top: 0;
+}
+.alert p {
+    margin-bottom: 0;
 }
 
 .alert-danger {
@@ -105,31 +120,47 @@ p {
     color: #721c24;
     border: 1px solid #f5c6cb;
 }
-
 .alert-warning {
     background-color: #fff3cd;
     color: #856404;
     border: 1px solid #ffeeba;
 }
+.alert-success {
+    background-color: #d4edda;
+    color: #155724;
+    border: 1px solid #c3e6cb;
+}
+.alert-info {
+    background-color: #d1ecf1;
+    color: #0c5460;
+    border: 1px solid #bee5eb;
+}
 
-/* METAR Card Styling */
-.metar-card {
+/* Base Card Styling */
+.metar-card, .taf-card, .pirep-card {
     background-color: #fafafa;
-    border-left: 5px solid; /* Color will be set by JS */
     padding: 15px;
     margin-bottom: 15px;
     border-radius: 0 8px 8px 0;
     box-shadow: 0 2px 4px rgba(0,0,0,0.05);
 }
-
-.metar-card h3 {
+.metar-card h3, .taf-card h3, .pirep-card h3 {
     margin-top: 0;
     margin-bottom: 10px;
     display: flex;
     justify-content: space-between;
     align-items: center;
 }
+.metar-card p, .taf-card p, .pirep-card p {
+    margin: 5px 0;
+    font-size: 15px;
+    color: #333;
+}
 
+/* METAR Card Specifics */
+.metar-card {
+    border-left: 5px solid; /* Color will be set by JS */
+}
 .metar-card .flight-category {
     font-size: 14px;
     font-weight: bold;
@@ -138,10 +169,12 @@ p {
     color: #fff;
 }
 
-.metar-card p {
-    margin: 5px 0;
-    font-size: 15px;
-    color: #333;
+/* TAF & PIREP Card Specifics */
+.taf-card {
+    border-left: 5px solid #f59e0b; /* Amber */
+}
+.pirep-card {
+    border-left: 5px solid #6b7280; /* Gray */
 }
 
 /* Flight Category Colors */
