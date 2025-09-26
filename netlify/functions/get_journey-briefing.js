@@ -639,66 +639,78 @@
 
 
 
+// netlify/functions/get_journey-briefing.js
+const fetch = require("node-fetch");
 
-
-// File: netlify/functions/get_journey-briefing.js
-
-const { HfInference } = require("@huggingface/inference");
-
-const hf = new HfInference(process.env.HUGGINGFACE_TOKEN);
-
-exports.handler = async function (event) {
-  if (event.httpMethod !== "POST") {
-    return { statusCode: 405, body: "Method Not Allowed" };
-  }
-
+exports.handler = async (event, context) => {
   try {
-    // PIREP data removed from request body
     const { metarData, tafData, sigmetData, route } = JSON.parse(event.body);
 
+    // Format the aviation briefing prompt
     const formattedPrompt = `
-      <s>[INST] You are an expert aviation meteorologist. Your task is to provide a go/no-go flight briefing.
-      Analyze all the provided weather data. Prioritize your analysis in the following order of importance: SIGMETs, METARs, then TAFs.
-      Provide a concise, one-paragraph summary (under 80 words).
-      Start your summary with one of three phrases: "Safe to proceed:", "Travel with caution:", or "Unsafe to proceed:".
-      Briefly explain the main reason for your assessment based on the most critical data. [/INST]</s>
-      [INST] Generate a flight briefing for the route: ${route.join(" -> ")}.
+      You are an aviation briefing assistant. Generate a structured pilot-friendly journey weather briefing.
+      
+      Route: ${route}
 
-      1. SIGMETs (Active Aviation Warnings):
+      Weather Data:
+      ------------------------
+      1. SIGMETs (Significant Weather Information):
       ${JSON.stringify(sigmetData, null, 2)}
 
-      2. METARs (Current Airport Conditions):
+      2. METARs (Current Observations):
       ${JSON.stringify(metarData, null, 2)}
-      
-      3. TAFs (Airport Forecasts):
+
+      3. TAFs (Terminal Forecasts):
       ${JSON.stringify(tafData, null, 2)}
 
-
-      [/INST]
+      ------------------------
+      Please summarize this into a clear, professional flight briefing with:
+      - Key hazards (storms, turbulence, icing, visibility)
+      - Weather trends
+      - Any significant alerts pilots should note
     `;
-    
-    const response = await hf.textGeneration({
-      model: 'mistralai/Mistral-7B-Instruct-v0.2',
-      inputs: formattedPrompt,
-      parameters: {
-        max_new_tokens: 250,
-        temperature: 0.7,
-        top_p: 0.95,
-      }
+
+    // Call Hugging Face Inference API
+    const HF_API_URL =
+      "https://api-inference.huggingface.co/models/mistralai/Mistral-7B-Instruct-v0.2";
+    const HF_API_KEY = process.env.HF_API_KEY;
+
+    const response = await fetch(HF_API_URL, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${HF_API_KEY}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        inputs: formattedPrompt,
+        parameters: {
+          max_new_tokens: 500,
+          temperature: 0.7,
+          return_full_text: false,
+        },
+      }),
     });
 
-    const summaryText = response.generated_text;
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error("Hugging Face API error:", errorText);
+      throw new Error("Failed to get AI briefing from Hugging Face.");
+    }
+
+    const data = await response.json();
+    const aiBriefing = data[0]?.generated_text || "No briefing generated.";
 
     return {
       statusCode: 200,
-      body: JSON.stringify({ summary: summaryText }),
+      body: JSON.stringify({ briefing: aiBriefing }),
     };
-
   } catch (error) {
-    console.error("Error calling Hugging Face API:", error);
+    console.error("Server error:", error);
     return {
       statusCode: 500,
-      body: JSON.stringify({ error: "Failed to get AI briefing from Hugging Face." }),
+      body: JSON.stringify({
+        error: "The AI briefing server failed: " + error.message,
+      }),
     };
   }
 };
