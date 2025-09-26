@@ -137,21 +137,21 @@ p {
 }
 
 /* Base Card Styling */
-.metar-card, .taf-card, .pirep-card, .tfr-card {
+.metar-card, .taf-card /*, .pirep-card, .tfr-card */ {
     background-color: #fafafa;
     padding: 15px;
     margin-bottom: 15px;
     border-radius: 0 8px 8px 0;
     box-shadow: 0 2px 4px rgba(0,0,0,0.05);
 }
-.metar-card h3, .taf-card h3, .pirep-card h3, .tfr-card h3 {
+.metar-card h3, .taf-card h3 /*, .pirep-card h3, .tfr-card h3 */ {
     margin-top: 0;
     margin-bottom: 10px;
     display: flex;
     justify-content: space-between;
     align-items: center;
 }
-.metar-card p, .taf-card p, .pirep-card p, .tfr-card p {
+.metar-card p, .taf-card p /*, .pirep-card p, .tfr-card p */ {
     margin: 5px 0;
     font-size: 15px;
     color: #333;
@@ -173,17 +173,20 @@ p {
 .taf-card {
     border-left: 5px solid #f59e0b; /* Amber */
 }
+/*
 .pirep-card {
     border-left: 5px solid #6b7280; /* Gray */
-}
-/* TFR Card Specifics */
+/*}
+*/
+/*
 .tfr-card {
     border-left: 5px solid #991b1b; /* Dark Red */
-    background-color: #fee2e2;
+/* background-color: #fee2e2;
 }
 .tfr-card h3 {
     color: #991b1b;
 }
+*/
 
 
 /* Flight Category Colors */
