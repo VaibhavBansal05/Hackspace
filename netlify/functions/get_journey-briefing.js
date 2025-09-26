@@ -673,9 +673,7 @@ exports.handler = async function (event) {
       3. TAFs (Airport Forecasts):
       ${JSON.stringify(tafData, null, 2)}
 
-      /* 4. PIREPs (Recent Pilot Reports):
-      ${JSON.stringify(pirepData, null, 2)} */
-      
+
       [/INST]
     `;
     
