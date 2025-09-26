@@ -264,12 +264,74 @@
 
 
 
+// // File: netlify/functions/get_journey-briefing.js
+
+// // Import the Hugging Face Inference library
+// const { HfInference } = require("@huggingface/inference");
+
+// // Initialize the client with your token
+// const hf = new HfInference(process.env.HUGGINGFACE_TOKEN);
+
+// exports.handler = async function (event) {
+//   if (event.httpMethod !== "POST") {
+//     return { statusCode: 405, body: "Method Not Allowed" };
+//   }
+
+//   try {
+//     const { metarData, sigmetData, route } = JSON.parse(event.body);
+
+//     // We format the prompt for the Mistral instruct model
+//     const formattedPrompt = `
+//       <s>[INST] You are an expert aviation meteorologist providing a go/no-go flight briefing. Provide a concise, one-paragraph summary (under 80 words). Start your summary with one of three phrases: "Safe to proceed:", "Travel with caution:", or "Unsafe to proceed:". Briefly explain the reason for your assessment. [/INST]</s>
+//       [INST] Analyze the following METAR and SIGMET data for the flight route: ${route.join(" -> ")}.
+
+//       METAR Data (Airport Conditions):
+//       ${JSON.stringify(metarData, null, 2)}
+
+//       SIGMET Data (Significant En-route Weather):
+//       ${JSON.stringify(sigmetData, null, 2)} [/INST]
+//     `;
+
+//     // Make the API call to Hugging Face
+//     const response = await hf.textGeneration({
+//       // Use a powerful and popular open-source model
+//       model: 'mistralai/Mistral-7B-Instruct-v0.2',
+//       inputs: formattedPrompt,
+//       parameters: {
+//         max_new_tokens: 250,
+//         temperature: 0.7,
+//         top_p: 0.95,
+//       }
+//     });
+
+//     const summaryText = response.generated_text;
+
+//     return {
+//       statusCode: 200,
+//       body: JSON.stringify({ summary: summaryText }),
+//     };
+
+//   } catch (error) {
+//     console.error("Error calling Hugging Face API:", error);
+//     return {
+//       statusCode: 500,
+//       body: JSON.stringify({ error: "Failed to get AI briefing from Hugging Face." }),
+//     };
+//   }
+// };
+
+
+
+
+
+
+
+
+
 // File: netlify/functions/get_journey-briefing.js
 
-// Import the Hugging Face Inference library
 const { HfInference } = require("@huggingface/inference");
 
-// Initialize the client with your token
 const hf = new HfInference(process.env.HUGGINGFACE_TOKEN);
 
 exports.handler = async function (event) {
@@ -280,31 +342,35 @@ exports.handler = async function (event) {
   try {
     const { metarData, sigmetData, route } = JSON.parse(event.body);
 
-    // We format the prompt for the Mistral instruct model
-    const formattedPrompt = `
-      <s>[INST] You are an expert aviation meteorologist providing a go/no-go flight briefing. Provide a concise, one-paragraph summary (under 80 words). Start your summary with one of three phrases: "Safe to proceed:", "Travel with caution:", or "Unsafe to proceed:". Briefly explain the reason for your assessment. [/INST]</s>
-      [INST] Analyze the following METAR and SIGMET data for the flight route: ${route.join(" -> ")}.
+    const userPrompt = `
+      Analyze the following METAR and SIGMET data for the flight route: ${route.join(" -> ")}.
 
       METAR Data (Airport Conditions):
       ${JSON.stringify(metarData, null, 2)}
 
       SIGMET Data (Significant En-route Weather):
-      ${JSON.stringify(sigmetData, null, 2)} [/INST]
+      ${JSON.stringify(sigmetData, null, 2)}
     `;
 
-    // Make the API call to Hugging Face
-    const response = await hf.textGeneration({
-      // Use a powerful and popular open-source model
+    // Make the API call using the chatCompletion method
+    const response = await hf.chatCompletion({
+      // Use the same powerful and free open-source model
       model: 'mistralai/Mistral-7B-Instruct-v0.2',
-      inputs: formattedPrompt,
-      parameters: {
-        max_new_tokens: 250,
-        temperature: 0.7,
-        top_p: 0.95,
-      }
+      messages: [
+        {
+          role: "system",
+          content: `You are an expert aviation meteorologist providing a go/no-go flight briefing. Provide a concise, one-paragraph summary (under 80 words). Start your summary with one of three phrases: "Safe to proceed:", "Travel with caution:", or "Unsafe to proceed:". Briefly explain the reason for your assessment.`,
+        },
+        {
+          role: "user",
+          content: userPrompt,
+        },
+      ],
+      max_tokens: 250,
     });
 
-    const summaryText = response.generated_text;
+    // Extract the response from the correct place
+    const summaryText = response.choices[0].message.content;
 
     return {
       statusCode: 200,
