@@ -89,7 +89,7 @@ exports.handler = async function (event) {
         },
       ],
       // Use the Llama 3 70-billion parameter model
-      model: "llama3-70b-8192",
+      model: "llama3-8b-8192",
     });
 
     // Extract the summary text from the response
