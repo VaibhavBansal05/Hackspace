@@ -1,46 +1,423 @@
-/* General Body Styles */
-body {
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-    background-color: #f0f2f5;
-    color: #333;
+/* Reset and Base Styles */
+* {
     margin: 0;
-    padding: 20px;
-    display: flex;
-    justify-content: center;
-    align-items: flex-start;
-    min-height: 100vh;
+    padding: 0;
+    box-sizing: border-box;
 }
 
-/* Main Container */
+body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    min-height: 100vh;
+    color: #333;
+}
+
+/* Header Styles */
+.header {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    padding: 1rem 2rem;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+}
+
+.header-content {
+    max-width: 1400px;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.logo {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: #1e3a8a;
+}
+
+.nav-tabs {
+    display: flex;
+    gap: 1rem;
+}
+
+.nav-tab {
+    padding: 0.5rem 1rem;
+    background: none;
+    border: 2px solid transparent;
+    border-radius: 25px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    color: #666;
+}
+
+.nav-tab.active,
+.nav-tab:hover {
+    background: #3b82f6;
+    color: white;
+    border-color: #3b82f6;
+}
+
+/* Container and Layout */
 .container {
-    background-color: #ffffff;
-    padding: 30px;
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 2rem;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+    min-height: calc(100vh - 100px);
+}
+
+.panel {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    border-radius: 20px;
+    padding: 2rem;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.single-column {
+    grid-column: span 2;
+}
+
+.section-title {
+    font-size: 1.5rem;
+    color: #1e3a8a;
+    margin-bottom: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+/* Route Planning */
+.route-planner {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.airport-input-group {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 0.5rem;
+}
+
+.airport-input {
+    flex: 1;
+    padding: 0.75rem 1rem;
+    border: 2px solid #e5e7eb;
     border-radius: 12px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-    width: 100%;
-    max-width: 800px;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+}
+
+.airport-input:focus {
+    outline: none;
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+}
+
+/* Buttons */
+.btn {
+    padding: 0.75rem 1.5rem;
+    border: none;
+    border-radius: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.btn-primary {
+    background: #3b82f6;
+    color: white;
+}
+
+.btn-primary:hover {
+    background: #2563eb;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
+}
+
+.btn-secondary {
+    background: #6b7280;
+    color: white;
+}
+
+.btn-secondary:hover {
+    background: #4b5563;
+}
+
+.btn-danger {
+    background: #ef4444;
+    color: white;
+}
+
+.btn-success {
+    background: #22c55e;
+    color: white;
+}
+
+.add-airport-btn {
+    align-self: flex-start;
+    background: #10b981;
+    color: white;
+}
+
+.remove-btn {
+    background: #ef4444;
+    color: white;
+    padding: 0.5rem;
+    min-width: auto;
+}
+
+/* Flight Options */
+.flight-options {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+    margin: 1rem 0;
+}
+
+.option-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.option-group label {
+    font-weight: 600;
+    color: #374151;
+}
+
+.option-group select,
+.option-group input {
+    padding: 0.5rem;
+    border: 2px solid #e5e7eb;
+    border-radius: 8px;
+    font-size: 0.9rem;
+}
+
+/* Map and Charts */
+.map-container {
+    height: 400px;
+    background: #f3f4f6;
+    border-radius: 12px;
+    position: relative;
+    overflow: hidden;
+    border: 2px solid #e5e7eb;
+}
+
+.altitude-chart-container {
+    height: 300px;
+    margin: 1rem 0;
+}
+
+/* Summary Cards */
+.summary-card {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 1.5rem;
+    border-radius: 16px;
+    margin-bottom: 1rem;
+}
+
+.summary-card h3 {
+    margin-bottom: 1rem;
+    font-size: 1.25rem;
+}
+
+.technical-summary {
+    background: #f8fafc;
+    padding: 1.5rem;
+    border-radius: 12px;
+    border-left: 4px solid #3b82f6;
+    margin-top: 1rem;
+}
+
+/* Weather Cards */
+.weather-cards {
+    display: grid;
+    gap: 1rem;
+    margin-top: 1rem;
+}
+
+.weather-card {
+    background: #f8fafc;
+    padding: 1rem;
+    border-radius: 12px;
+    border-left: 4px solid #10b981;
+}
+
+/* METAR/TAF Cards from original code */
+.metar-card, .taf-card {
+    background-color: #fafafa;
+    padding: 15px;
+    margin-bottom: 15px;
+    border-radius: 0 8px 8px 0;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+.metar-card h3, .taf-card h3 {
+    margin-top: 0;
+    margin-bottom: 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.metar-card p, .taf-card p {
+    margin: 5px 0;
+    font-size: 15px;
+    color: #333;
+}
+
+.metar-card {
+    border-left: 5px solid;
+}
+
+.metar-card .flight-category {
+    font-size: 14px;
+    font-weight: bold;
+    padding: 4px 8px;
+    border-radius: 12px;
+    color: #fff;
+}
+
+.taf-card {
+    border-left: 5px solid #f59e0b;
+}
+
+/* Flight Category Colors */
+.vfr { border-color: #22c55e; }
+.vfr .flight-category { background-color: #22c55e; }
+
+.mvfr { border-color: #3b82f6; }
+.mvfr .flight-category { background-color: #3b82f6; }
+
+.ifr { border-color: #ef4444; }
+.ifr .flight-category { background-color: #ef4444; }
+
+.lifr { border-color: #a855f7; }
+.lifr .flight-category { background-color: #a855f7; }
+
+/* Alert Styles */
+.alert {
+    padding: 1rem;
+    border-radius: 12px;
+    margin-bottom: 1rem;
+    font-weight: 600;
+}
+
+.alert h3 {
+    margin-top: 0;
+    margin-bottom: 0.5rem;
+}
+
+.alert p {
+    margin-bottom: 0;
+}
+
+.alert-success {
+    background: #d4edda;
+    color: #155724;
+    border: 1px solid #c3e6cb;
+}
+
+.alert-warning {
+    background: #fff3cd;
+    color: #856404;
+    border: 1px solid #ffeeba;
+}
+
+.alert-danger {
+    background: #f8d7da;
+    color: #721c24;
+    border: 1px solid #f5c6cb;
+}
+
+.alert-info {
+    background: #d1ecf1;
+    color: #0c5460;
+    border: 1px solid #bee5eb;
+}
+
+/* Loader */
+.loader {
+    border: 4px solid #f3f3f3;
+    border-top: 4px solid #3b82f6;
+    border-radius: 50%;
+    width: 50px;
+    height: 50px;
+    animation: spin 1s linear infinite;
+    margin: 2rem auto;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Statistics */
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1rem;
+    margin: 1rem 0;
+}
+
+.stat-card {
+    background: #f8fafc;
+    padding: 1rem;
+    border-radius: 12px;
     text-align: center;
 }
 
-h1 {
-    color: #1e3a8a; /* A nice deep blue */
-    margin-bottom: 10px;
+.stat-value {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: #3b82f6;
 }
 
-h2 {
-    text-align: left;
-    color: #333;
-    border-bottom: 2px solid #eee;
-    padding-bottom: 10px;
-    margin-top: 30px;
+.stat-label {
+    font-size: 0.9rem;
+    color: #6b7280;
+    margin-top: 0.25rem;
 }
 
-p {
-    color: #555;
-    margin-bottom: 25px;
+/* Special Warnings */
+.reroute-options {
+    background: #fff7ed;
+    border: 2px solid #f59e0b;
+    border-radius: 12px;
+    padding: 1rem;
+    margin-top: 1rem;
 }
 
-/* Input Group */
+.obstacle-warning {
+    background: #fef2f2;
+    border: 2px solid #ef4444;
+    border-radius: 12px;
+    padding: 1rem;
+    margin-top: 1rem;
+}
+
+/* Utility Classes */
+.hidden {
+    display: none !important;
+}
+
+/* Input Group for Weather */
 .input-group {
     display: flex;
     gap: 10px;
@@ -62,142 +439,68 @@ p {
     box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
 }
 
-#get-weather-btn {
-    padding: 12px 20px;
-    font-size: 16px;
-    font-weight: bold;
-    color: #fff;
-    background-color: #3b82f6; /* A vibrant blue */
-    border: none;
-    border-radius: 8px;
+/* Details/Summary styling */
+details {
+    margin-top: 0.5rem;
+}
+
+summary {
     cursor: pointer;
-    transition: background-color 0.3s;
+    font-weight: 600;
+    color: #3b82f6;
+    padding: 0.25rem 0;
 }
 
-#get-weather-btn:hover {
-    background-color: #2563eb;
+summary:hover {
+    color: #2563eb;
 }
 
-/* Loader Animation */
-.loader {
-    border: 5px solid #f3f3f3;
-    border-top: 5px solid #3b82f6;
-    border-radius: 50%;
-    width: 40px;
-    height: 40px;
-    animation: spin 1s linear infinite;
-    margin: 20px auto;
+code {
+    background: #f1f5f9;
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    font-family: 'Courier New', monospace;
+    font-size: 0.9rem;
 }
 
-@keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
+/* Responsive Design */
+@media (max-width: 768px) {
+    .container {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+        padding: 1rem;
+    }
+    
+    .single-column {
+        grid-column: span 1;
+    }
+    
+    .flight-options {
+        grid-template-columns: 1fr;
+    }
+    
+    .stats-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .header-content {
+        flex-direction: column;
+        gap: 1rem;
+        text-align: center;
+    }
+    
+    .nav-tabs {
+        justify-content: center;
+        flex-wrap: wrap;
+    }
+    
+    .airport-input-group {
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+    
+    .btn {
+        width: 100%;
+        justify-content: center;
+    }
 }
-
-/* Weather Summary Section */
-#weather-summary {
-    text-align: left;
-    margin-top: 20px;
-}
-
-/* Alert/Error Styling */
-.alert {
-    padding: 15px;
-    margin-bottom: 15px;
-    border-radius: 8px;
-    font-weight: bold;
-    text-align: left;
-}
-.alert h3 {
-    margin-top: 0;
-}
-.alert p {
-    margin-bottom: 0;
-}
-
-.alert-danger {
-    background-color: #f8d7da;
-    color: #721c24;
-    border: 1px solid #f5c6cb;
-}
-.alert-warning {
-    background-color: #fff3cd;
-    color: #856404;
-    border: 1px solid #ffeeba;
-}
-.alert-success {
-    background-color: #d4edda;
-    color: #155724;
-    border: 1px solid #c3e6cb;
-}
-.alert-info {
-    background-color: #d1ecf1;
-    color: #0c5460;
-    border: 1px solid #bee5eb;
-}
-
-/* Base Card Styling */
-.metar-card, .taf-card /*, .pirep-card, .tfr-card */ {
-    background-color: #fafafa;
-    padding: 15px;
-    margin-bottom: 15px;
-    border-radius: 0 8px 8px 0;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-}
-.metar-card h3, .taf-card h3 /*, .pirep-card h3, .tfr-card h3 */ {
-    margin-top: 0;
-    margin-bottom: 10px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-.metar-card p, .taf-card p /*, .pirep-card p, .tfr-card p */ {
-    margin: 5px 0;
-    font-size: 15px;
-    color: #333;
-}
-
-/* METAR Card Specifics */
-.metar-card {
-    border-left: 5px solid; /* Color will be set by JS */
-}
-.metar-card .flight-category {
-    font-size: 14px;
-    font-weight: bold;
-    padding: 4px 8px;
-    border-radius: 12px;
-    color: #fff;
-}
-
-/* TAF & PIREP Card Specifics */
-.taf-card {
-    border-left: 5px solid #f59e0b; /* Amber */
-}
-/*
-.pirep-card {
-    border-left: 5px solid #6b7280; /* Gray */
-/*}
-*/
-/*
-.tfr-card {
-    border-left: 5px solid #991b1b; /* Dark Red */
-/* background-color: #fee2e2;
-}
-.tfr-card h3 {
-    color: #991b1b;
-}
-*/
-
-
-/* Flight Category Colors */
-.vfr { border-color: #22c55e; } /* Green */
-.vfr .flight-category { background-color: #22c55e; }
-
-.mvfr { border-color: #3b82f6; } /* Blue */
-.mvfr .flight-category { background-color: #3b82f6; }
-
-.ifr { border-color: #ef4444; } /* Red */
-.ifr .flight-category { background-color: #ef4444; }
-
-.lifr { border-color: #a855f7; } /* Purple */
-.lifr .flight-category { background-color: #a855f7; }

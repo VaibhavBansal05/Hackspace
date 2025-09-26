@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!-- <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -27,5 +27,153 @@
     </main>
 
     <script type="module" src="script.js"></script>
+</body>
+</html> -->
+
+
+
+
+
+
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Advanced Flight Planning System</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+</head>
+<body>
+    <header class="header">
+        <div class="header-content">
+            <div class="logo">
+                ✈️ Advanced Flight Planner
+            </div>
+            <nav class="nav-tabs">
+                <button class="nav-tab active" data-tab="planning">Flight Planning</button>
+                <button class="nav-tab" data-tab="weather">Weather Brief</button>
+                <button class="nav-tab" data-tab="charts">Charts & Analysis</button>
+            </nav>
+        </div>
+    </header>
+
+    <div class="container">
+        <!-- Planning Tab -->
+        <div id="planning-tab" class="tab-content">
+            <div class="panel">
+                <h2 class="section-title">🛫 Route Planning</h2>
+                <div class="route-planner">
+                    <div id="airports-container">
+                        <div class="airport-input-group">
+                            <input type="text" class="airport-input" placeholder="Departure Airport (ICAO)" data-index="0">
+                        </div>
+                        <div class="airport-input-group">
+                            <input type="text" class="airport-input" placeholder="Arrival Airport (ICAO)" data-index="1">
+                        </div>
+                    </div>
+                    <button class="btn add-airport-btn" onclick="addAirportInput()">+ Add Waypoint</button>
+                    
+                    <div class="flight-options">
+                        <div class="option-group">
+                            <label>Aircraft Type</label>
+                            <select id="aircraft-type">
+                                <option value="light">Light Aircraft</option>
+                                <option value="turboprop">Turboprop</option>
+                                <option value="jet">Business Jet</option>
+                                <option value="airliner">Airliner</option>
+                            </select>
+                        </div>
+                        <div class="option-group">
+                            <label>Cruise Altitude (ft)</label>
+                            <input type="number" id="cruise-altitude" value="8000" min="1000" max="45000" step="1000">
+                        </div>
+                        <div class="option-group">
+                            <label>Fuel Priority</label>
+                            <select id="fuel-priority">
+                                <option value="efficiency">Fuel Efficiency</option>
+                                <option value="time">Time Efficiency</option>
+                                <option value="balanced">Balanced</option>
+                            </select>
+                        </div>
+                        <div class="option-group">
+                            <label>Weather Avoidance</label>
+                            <select id="weather-avoidance">
+                                <option value="auto">Automatic</option>
+                                <option value="moderate">Moderate</option>
+                                <option value="aggressive">Aggressive</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div style="display: flex; gap: 1rem;">
+                        <button class="btn btn-primary" onclick="generateFlightPlan()">Generate Flight Plan</button>
+                        <button class="btn btn-secondary" onclick="optimizeRoute()">Optimize Route</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="panel">
+                <h2 class="section-title">🗺️ Flight Map</h2>
+                <div class="map-container" id="flight-map">
+                    <div style="display: flex; align-items: center; justify-content: center; height: 100%; color: #6b7280;">
+                        Interactive flight map will appear here
+                    </div>
+                </div>
+                <div id="obstacle-warnings"></div>
+                <div id="reroute-suggestions"></div>
+            </div>
+        </div>
+
+        <!-- Weather Tab -->
+        <div id="weather-tab" class="tab-content hidden">
+            <div class="panel single-column">
+                <h2 class="section-title">🌤️ Weather Briefing</h2>
+                <div class="input-group" style="display: flex; gap: 1rem; margin-bottom: 2rem;">
+                    <input type="text" id="route-input" class="airport-input" placeholder="Enter ICAO codes separated by commas (e.g., KLAX, KDEN, KJFK)" style="flex: 1;">
+                    <button id="get-weather-btn" class="btn btn-primary">Get Weather Brief</button>
+                </div>
+                
+                <div id="loader" class="loader hidden"></div>
+                <div id="final-summary"></div>
+                <div id="weather-summary"></div>
+            </div>
+        </div>
+
+        <!-- Charts Tab -->
+        <div id="charts-tab" class="tab-content hidden">
+            <div class="panel">
+                <h2 class="section-title">📊 Altitude Profile</h2>
+                <div class="altitude-chart-container">
+                    <canvas id="altitude-chart"></canvas>
+                </div>
+            </div>
+
+            <div class="panel">
+                <h2 class="section-title">📈 Flight Statistics</h2>
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-value" id="total-distance">--</div>
+                        <div class="stat-label">Total Distance (nm)</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="flight-time">--</div>
+                        <div class="stat-label">Est. Flight Time</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="fuel-required">--</div>
+                        <div class="stat-label">Fuel Required (gal)</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Load scripts in correct order -->
+    
+    <script src="script.js"></script>
 </body>
 </html>
