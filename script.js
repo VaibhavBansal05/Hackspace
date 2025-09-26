@@ -153,7 +153,6 @@ const finalSummaryDiv = document.getElementById('final-summary');
 const weatherSummaryDiv = document.getElementById('weather-summary');
 
 const AWC_API_BASE_URL = 'https://aviationweather.gov/api/data/';
-const TFR_API_URL = 'https://services.aopa.org/api/tfrs/';
 const YOUR_FUNCTION_URL = '/.netlify/functions/get_journey-briefing';
 
 getWeatherBtn.addEventListener('click', handleGetWeather);
@@ -196,7 +195,14 @@ async function fetchSigmetData() {
 }
 
 async function fetchPirepData(icaoCodes) {
-    const url = `${AWC_API_BASE_URL}pirep?format=json&hoursBeforeNow=1&distance=50&route=${icaoCodes.join(',')}`;
+    let url;
+    // If only one airport, search in a radius. If more than one, search along the route.
+    if (icaoCodes.length === 1) {
+        url = `${AWC_API_BASE_URL}pirep?format=json&hoursBeforeNow=1&distance=150&location=${icaoCodes[0]}`;
+    } else {
+        url = `${AWC_API_BASE_URL}pirep?format=json&hoursBeforeNow=1&distance=50&route=${icaoCodes.join(',')}`;
+    }
+    
     try {
         const response = await fetch(url);
         if (!response.ok) throw new Error(`Failed to fetch PIREP data. Status: ${response.status}`);
@@ -206,18 +212,6 @@ async function fetchPirepData(icaoCodes) {
         throw error;
     }
 }
-
-async function fetchTfrData() {
-    try {
-        const response = await fetch(TFR_API_URL);
-        if (!response.ok) throw new Error(`Failed to fetch TFR data. Status: ${response.status}`);
-        return await response.json();
-    } catch (error) {
-        console.error("TFR Fetch Error:", error);
-        throw error;
-    }
-}
-
 
 // --- Main application logic ---
 async function handleGetWeather() {
@@ -233,20 +227,19 @@ async function handleGetWeather() {
     loader.style.display = 'block';
 
     try {
-        // Fetch all data sources concurrently
-        const [metarData, tafData, sigmetData, pirepData, tfrData] = await Promise.all([
+        // Fetch all available data sources concurrently
+        const [metarData, tafData, sigmetData, pirepData] = await Promise.all([
             fetchMetarData(icaoCodes),
             fetchTafData(icaoCodes),
             fetchSigmetData(),
-            fetchPirepData(icaoCodes),
-            fetchTfrData()
+            fetchPirepData(icaoCodes)
         ]);
 
-        // Send all data to the serverless function
+        // Send data to the serverless function
         const response = await fetch(YOUR_FUNCTION_URL, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ metarData, tafData, sigmetData, pirepData, tfrData, route: icaoCodes })
+            body: JSON.stringify({ metarData, tafData, sigmetData, pirepData, route: icaoCodes })
         });
 
         if (!response.ok) {
@@ -258,7 +251,7 @@ async function handleGetWeather() {
         
         // Display results
         displayFinalSummary(summary);
-        displayDetailedCards({ metarData, tafData, pirepData, tfrData });
+        displayDetailedCards({ metarData, tafData, pirepData });
 
     } catch (error) {
         console.error("Error during briefing process:", error);
@@ -277,9 +270,8 @@ function displayFinalSummary(summary) {
     finalSummaryDiv.innerHTML = `<div class="alert ${summaryClass}"><h3>Journey Assessment</h3><p>${summary}</p></div>`;
 }
 
-function displayDetailedCards({ metarData, tafData, pirepData, tfrData }) {
+function displayDetailedCards({ metarData, tafData, pirepData }) {
     let html = '';
-    html += displayTfrCards(tfrData); // TFRs are most important, show them first.
     html += displayMetarCards(metarData);
     html += displayTafCards(tafData);
     html += displayPirepCards(pirepData);
@@ -330,25 +322,6 @@ function displayPirepCards(pirepData) {
             <div class="pirep-card">
                 <h3>${pirep.reportType} at ${pirep.obsTime.split('T')[1].replace('Z', 'Z')}</h3>
                 <p><code>${pirep.rawReport}</code></p>
-            </div>
-        `;
-    });
-    return html;
-}
-
-function displayTfrCards(tfrData) {
-    if (!tfrData || tfrData.length === 0) return '<h2>Flight Restrictions (TFR)</h2><p>No active TFRs found.</p>';
-    let html = '<h2>Active Flight Restrictions (TFR)</h2>';
-    // Let the AI determine relevance, but we can display the first few
-    tfrData.slice(0, 5).forEach(tfr => {
-        html += `
-            <div class="tfr-card">
-                <h3>${tfr.properties.coreNOTAMData.notam.name}</h3>
-                <p><strong>Type:</strong> ${tfr.properties.coreNOTAMData.notam.type}</p>
-                <details>
-                    <summary>View Details</summary>
-                    <p><code>${tfr.properties.coreNOTAMData.notam.text}</code></p>
-                </details>
             </div>
         `;
     });
