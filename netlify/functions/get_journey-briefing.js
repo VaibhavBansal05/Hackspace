@@ -198,13 +198,79 @@
 
 
 
+// // File: netlify/functions/get_journey-briefing.js
+
+// const { OpenAI } = require("openai");
+
+// const openai = new OpenAI({
+//   apiKey: process.env.OPENAI_API_KEY,
+// });
+
+// exports.handler = async function (event) {
+//   if (event.httpMethod !== "POST") {
+//     return { statusCode: 405, body: "Method Not Allowed" };
+//   }
+
+//   try {
+//     const { metarData, sigmetData, route } = JSON.parse(event.body);
+
+//     const userPrompt = `
+//       Analyze the following METAR and SIGMET data for the flight route: ${route.join(" -> ")}.
+      
+//       METAR Data (Airport Conditions):
+//       ${JSON.stringify(metarData, null, 2)}
+
+//       SIGMET Data (Significant En-route Weather):
+//       ${JSON.stringify(sigmetData, null, 2)}
+//     `;
+
+//     const completion = await openai.chat.completions.create({
+//       messages: [
+//         {
+//           role: "system",
+//           content: `You are an expert aviation meteorologist providing a go/no-go flight briefing. Provide a concise, one-paragraph summary (under 80 words). Start your summary with one of three phrases: "Safe to proceed:", "Travel with caution:", or "Unsafe to proceed:". Briefly explain the reason for your assessment.`,
+//         },
+//         {
+//           role: "user",
+//           content: userPrompt,
+//         },
+//       ],
+//       // Use gpt-4o, OpenAI's latest and globally available model
+//       model: "gpt-4o",
+//     });
+    
+//     const summaryText = completion.choices[0].message.content;
+
+//     return {
+//       statusCode: 200,
+//       body: JSON.stringify({ summary: summaryText }),
+//     };
+
+//   } catch (error) {
+//     console.error("Error calling OpenAI API:", error);
+//     return {
+//       statusCode: 500,
+//       body: JSON.stringify({ error: "Failed to get AI briefing from OpenAI." }),
+//     };
+//   }
+// };\
+
+
+
+
+
+
+
+
+
+
 // File: netlify/functions/get_journey-briefing.js
 
-const { OpenAI } = require("openai");
+// Import the Hugging Face Inference library
+const { HfInference } = require("@huggingface/inference");
 
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-});
+// Initialize the client with your token
+const hf = new HfInference(process.env.HUGGINGFACE_TOKEN);
 
 exports.handler = async function (event) {
   if (event.httpMethod !== "POST") {
@@ -214,32 +280,31 @@ exports.handler = async function (event) {
   try {
     const { metarData, sigmetData, route } = JSON.parse(event.body);
 
-    const userPrompt = `
-      Analyze the following METAR and SIGMET data for the flight route: ${route.join(" -> ")}.
-      
+    // We format the prompt for the Mistral instruct model
+    const formattedPrompt = `
+      <s>[INST] You are an expert aviation meteorologist providing a go/no-go flight briefing. Provide a concise, one-paragraph summary (under 80 words). Start your summary with one of three phrases: "Safe to proceed:", "Travel with caution:", or "Unsafe to proceed:". Briefly explain the reason for your assessment. [/INST]</s>
+      [INST] Analyze the following METAR and SIGMET data for the flight route: ${route.join(" -> ")}.
+
       METAR Data (Airport Conditions):
       ${JSON.stringify(metarData, null, 2)}
 
       SIGMET Data (Significant En-route Weather):
-      ${JSON.stringify(sigmetData, null, 2)}
+      ${JSON.stringify(sigmetData, null, 2)} [/INST]
     `;
 
-    const completion = await openai.chat.completions.create({
-      messages: [
-        {
-          role: "system",
-          content: `You are an expert aviation meteorologist providing a go/no-go flight briefing. Provide a concise, one-paragraph summary (under 80 words). Start your summary with one of three phrases: "Safe to proceed:", "Travel with caution:", or "Unsafe to proceed:". Briefly explain the reason for your assessment.`,
-        },
-        {
-          role: "user",
-          content: userPrompt,
-        },
-      ],
-      // Use gpt-4o, OpenAI's latest and globally available model
-      model: "gpt-4o",
+    // Make the API call to Hugging Face
+    const response = await hf.textGeneration({
+      // Use a powerful and popular open-source model
+      model: 'mistralai/Mistral-7B-Instruct-v0.2',
+      inputs: formattedPrompt,
+      parameters: {
+        max_new_tokens: 250,
+        temperature: 0.7,
+        top_p: 0.95,
+      }
     });
-    
-    const summaryText = completion.choices[0].message.content;
+
+    const summaryText = response.generated_text;
 
     return {
       statusCode: 200,
@@ -247,10 +312,10 @@ exports.handler = async function (event) {
     };
 
   } catch (error) {
-    console.error("Error calling OpenAI API:", error);
+    console.error("Error calling Hugging Face API:", error);
     return {
       statusCode: 500,
-      body: JSON.stringify({ error: "Failed to get AI briefing from OpenAI." }),
+      body: JSON.stringify({ error: "Failed to get AI briefing from Hugging Face." }),
     };
   }
 };
