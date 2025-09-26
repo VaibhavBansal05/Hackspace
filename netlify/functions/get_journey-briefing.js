@@ -400,6 +400,89 @@
 
 
 
+// // File: netlify/functions/get_journey-briefing.js
+
+// const { HfInference } = require("@huggingface/inference");
+
+// const hf = new HfInference(process.env.HUGGINGFACE_TOKEN);
+
+// exports.handler = async function (event) {
+//   if (event.httpMethod !== "POST") {
+//     return { statusCode: 405, body: "Method Not Allowed" };
+//   }
+
+//   try {
+//     // Destructure all four data types from the request
+//     const { metarData, tafData, sigmetData, pirepData, route } = JSON.parse(event.body);
+
+//     // Create the new, more detailed prompt for the AI
+//     const formattedPrompt = `
+//       <s>[INST] You are an expert aviation meteorologist. Your task is to provide a go/no-go flight briefing.
+//       Analyze all the provided weather data. Prioritize your analysis in the following order of importance: SIGMETs, METARs, TAFs, then PIREPs.
+//       Provide a concise, one-paragraph summary (under 80 words).
+//       Start your summary with one of three phrases: "Safe to proceed:", "Travel with caution:", or "Unsafe to proceed:".
+//       Briefly explain the main reason for your assessment based on the most critical data. [/INST]</s>
+//       [INST] Generate a flight briefing for the route: ${route.join(" -> ")}.
+
+//       1. SIGMETs (Active Aviation Warnings):
+//       ${JSON.stringify(sigmetData, null, 2)}
+
+//       2. METARs (Current Airport Conditions):
+//       ${JSON.stringify(metarData, null, 2)}
+      
+//       3. TAFs (Airport Forecasts):
+//       ${JSON.stringify(tafData, null, 2)}
+
+//       4. PIREPs (Recent Pilot Reports):
+//       ${JSON.stringify(pirepData, null, 2)} [/INST]
+//     `;
+    
+//     const response = await hf.textGeneration({
+//       model: 'mistralai/Mistral-7B-Instruct-v0.2',
+//       inputs: formattedPrompt,
+//       parameters: {
+//         max_new_tokens: 250,
+//         temperature: 0.7,
+//         top_p: 0.95,
+//       }
+//     });
+
+//     const summaryText = response.generated_text;
+
+//     return {
+//       statusCode: 200,
+//       body: JSON.stringify({ summary: summaryText }),
+//     };
+
+//   } catch (error) {
+//     console.error("Error calling Hugging Face API:", error);
+//     return {
+//       statusCode: 500,
+//       body: JSON.stringify({ error: "Failed to get AI briefing from Hugging Face." }),
+//     };
+//   }
+// };
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 // File: netlify/functions/get_journey-briefing.js
 
 const { HfInference } = require("@huggingface/inference");
@@ -412,28 +495,29 @@ exports.handler = async function (event) {
   }
 
   try {
-    // Destructure all four data types from the request
-    const { metarData, tafData, sigmetData, pirepData, route } = JSON.parse(event.body);
+    const { metarData, tafData, sigmetData, pirepData, tfrData, route } = JSON.parse(event.body);
 
-    // Create the new, more detailed prompt for the AI
     const formattedPrompt = `
       <s>[INST] You are an expert aviation meteorologist. Your task is to provide a go/no-go flight briefing.
-      Analyze all the provided weather data. Prioritize your analysis in the following order of importance: SIGMETs, METARs, TAFs, then PIREPs.
+      Analyze all the provided weather and flight restriction data. Prioritize your analysis in the following order of importance: TFRs, SIGMETs, METARs, TAFs, then PIREPs. A TFR or a severe SIGMET should be the primary reason for an "Unsafe" briefing.
       Provide a concise, one-paragraph summary (under 80 words).
       Start your summary with one of three phrases: "Safe to proceed:", "Travel with caution:", or "Unsafe to proceed:".
       Briefly explain the main reason for your assessment based on the most critical data. [/INST]</s>
       [INST] Generate a flight briefing for the route: ${route.join(" -> ")}.
 
-      1. SIGMETs (Active Aviation Warnings):
+      1. TFRs (Temporary Flight Restrictions - HIGHEST PRIORITY):
+      ${JSON.stringify(tfrData, null, 2)}
+
+      2. SIGMETs (Active Aviation Warnings):
       ${JSON.stringify(sigmetData, null, 2)}
 
-      2. METARs (Current Airport Conditions):
+      3. METARs (Current Airport Conditions):
       ${JSON.stringify(metarData, null, 2)}
       
-      3. TAFs (Airport Forecasts):
+      4. TAFs (Airport Forecasts):
       ${JSON.stringify(tafData, null, 2)}
 
-      4. PIREPs (Recent Pilot Reports):
+      5. PIREPs (Recent Pilot Reports):
       ${JSON.stringify(pirepData, null, 2)} [/INST]
     `;
     
