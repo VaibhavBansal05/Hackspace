@@ -48,14 +48,88 @@
 // };
 
 
+// // File: netlify/functions/get_journey-briefing.js
+
+// // Import the Groq library
+// const Groq = require("groq-sdk");
+
+// // Initialize the Groq client with your API key
+// const groq = new Groq({
+//   apiKey: process.env.GROQ_API_KEY,
+// });
+
+// exports.handler = async function (event) {
+//   if (event.httpMethod !== "POST") {
+//     return { statusCode: 405, body: "Method Not Allowed" };
+//   }
+
+//   try {
+//     const { metarData, sigmetData, route } = JSON.parse(event.body);
+
+//     const userPrompt = `
+//       Analyze the following METAR and SIGMET data for the flight route: ${route.join(" -> ")}.
+
+//       METAR Data (Airport Conditions):
+//       ${JSON.stringify(metarData, null, 2)}
+
+//       SIGMET Data (Significant En-route Weather):
+//       ${JSON.stringify(sigmetData, null, 2)}
+//     `;
+
+//     // Make the API call to Groq
+//     const completion = await groq.chat.completions.create({
+//       messages: [
+//         {
+//           role: "system",
+//           content: `You are an expert aviation meteorologist providing a go/no-go flight briefing. Provide a concise, one-paragraph summary (under 80 words). Start your summary with one of three phrases: "Safe to proceed:", "Travel with caution:", or "Unsafe to proceed:". Briefly explain the reason for your assessment.`,
+//         },
+//         {
+//           role: "user",
+//           content: userPrompt,
+//         },
+//       ],
+//       // Use the Llama 3 70-billion parameter model
+//       model: "llama3.1-8b-instant",
+//     });
+
+//     // Extract the summary text from the response
+//     const summaryText = completion.choices[0]?.message?.content || "No summary available.";
+
+//     // Send the summary back to the frontend
+//     return {
+//       statusCode: 200,
+//       body: JSON.stringify({ summary: summaryText }),
+//     };
+
+//   } catch (error) {
+//     console.error("Error calling Groq API:", error);
+//     return {
+//       statusCode: 500,
+//       body: JSON.stringify({ error: "Failed to get AI briefing from Groq." }),
+//     };
+//   }
+// };
+
+
+
+
+
+
+
+
+
+
+
+
+
 // File: netlify/functions/get_journey-briefing.js
 
-// Import the Groq library
-const Groq = require("groq-sdk");
+// Import the Replicate library
+const Replicate = require("replicate");
 
-// Initialize the Groq client with your API key
-const groq = new Groq({
-  apiKey: process.env.GROQ_API_KEY,
+// Initialize the Replicate client with your API token
+const replicate = new Replicate({
+  auth: process.env.REPLICATE_API_TOKEN,
 });
 
 exports.handler = async function (event) {
@@ -66,46 +140,43 @@ exports.handler = async function (event) {
   try {
     const { metarData, sigmetData, route } = JSON.parse(event.body);
 
-    const userPrompt = `
-      Analyze the following METAR and SIGMET data for the flight route: ${route.join(" -> ")}.
+    // We combine the system and user prompts for Replicate's input format
+    const input = {
+      top_p: 0.9,
+      prompt: `
+        [INST] You are an expert aviation meteorologist providing a go/no-go flight briefing. Provide a concise, one-paragraph summary (under 80 words). Start your summary with one of three phrases: "Safe to proceed:", "Travel with caution:", or "Unsafe to proceed:". Briefly explain the reason for your assessment. [/INST]
 
-      METAR Data (Airport Conditions):
-      ${JSON.stringify(metarData, null, 2)}
+        Analyze the following METAR and SIGMET data for the flight route: ${route.join(" -> ")}.
 
-      SIGMET Data (Significant En-route Weather):
-      ${JSON.stringify(sigmetData, null, 2)}
-    `;
+        METAR Data (Airport Conditions):
+        ${JSON.stringify(metarData, null, 2)}
 
-    // Make the API call to Groq
-    const completion = await groq.chat.completions.create({
-      messages: [
-        {
-          role: "system",
-          content: `You are an expert aviation meteorologist providing a go/no-go flight briefing. Provide a concise, one-paragraph summary (under 80 words). Start your summary with one of three phrases: "Safe to proceed:", "Travel with caution:", or "Unsafe to proceed:". Briefly explain the reason for your assessment.`,
-        },
-        {
-          role: "user",
-          content: userPrompt,
-        },
-      ],
-      // Use the Llama 3 70-billion parameter model
-      model: "llama3.1-8b-instant",
-    });
+        SIGMET Data (Significant En-route Weather):
+        ${JSON.stringify(sigmetData, null, 2)}
+      `,
+      temperature: 0.6,
+      max_new_tokens: 256,
+    };
 
-    // Extract the summary text from the response
-    const summaryText = completion.choices[0]?.message?.content || "No summary available.";
+    // Make the API call to Replicate using the official Llama 3 70B model
+    const output = await replicate.run(
+      "meta/meta-llama-3-70b-instruct",
+      { input }
+    );
 
-    // Send the summary back to the frontend
+    // The output is an array of strings; we join them to form the full summary.
+    const summaryText = output.join("");
+
     return {
       statusCode: 200,
       body: JSON.stringify({ summary: summaryText }),
     };
 
   } catch (error) {
-    console.error("Error calling Groq API:", error);
+    console.error("Error calling Replicate API:", error);
     return {
       statusCode: 500,
-      body: JSON.stringify({ error: "Failed to get AI briefing from Groq." }),
+      body: JSON.stringify({ error: "Failed to get AI briefing from Replicate." }),
     };
   }
 };
