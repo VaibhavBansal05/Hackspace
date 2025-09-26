@@ -122,14 +122,88 @@
 
 
 
+// // File: netlify/functions/get_journey-briefing.js
+
+// // Import the Replicate library
+// const Replicate = require("replicate");
+
+// // Initialize the Replicate client with your API token
+// const replicate = new Replicate({
+//   auth: process.env.REPLICATE_API_TOKEN,
+// });
+
+// exports.handler = async function (event) {
+//   if (event.httpMethod !== "POST") {
+//     return { statusCode: 405, body: "Method Not Allowed" };
+//   }
+
+//   try {
+//     const { metarData, sigmetData, route } = JSON.parse(event.body);
+
+//     // We combine the system and user prompts for Replicate's input format
+//     const input = {
+//       top_p: 0.9,
+//       prompt: `
+//         [INST] You are an expert aviation meteorologist providing a go/no-go flight briefing. Provide a concise, one-paragraph summary (under 80 words). Start your summary with one of three phrases: "Safe to proceed:", "Travel with caution:", or "Unsafe to proceed:". Briefly explain the reason for your assessment. [/INST]
+
+//         Analyze the following METAR and SIGMET data for the flight route: ${route.join(" -> ")}.
+
+//         METAR Data (Airport Conditions):
+//         ${JSON.stringify(metarData, null, 2)}
+
+//         SIGMET Data (Significant En-route Weather):
+//         ${JSON.stringify(sigmetData, null, 2)}
+//       `,
+//       temperature: 0.6,
+//       max_new_tokens: 256,
+//     };
+
+//     // Make the API call to Replicate using the official Llama 3 70B model
+//     const output = await replicate.run(
+//       "meta/meta-llama-3-8b-instruct",
+//       { input }
+//     );
+
+//     // The output is an array of strings; we join them to form the full summary.
+//     const summaryText = output.join("");
+
+//     return {
+//       statusCode: 200,
+//       body: JSON.stringify({ summary: summaryText }),
+//     };
+
+//   } catch (error) {
+//     console.error("Error calling Replicate API:", error);
+//     return {
+//       statusCode: 500,
+//       body: JSON.stringify({ error: "Failed to get AI briefing from Replicate." }),
+//     };
+//   }
+// };
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 // File: netlify/functions/get_journey-briefing.js
 
-// Import the Replicate library
-const Replicate = require("replicate");
+const { OpenAI } = require("openai");
 
-// Initialize the Replicate client with your API token
-const replicate = new Replicate({
-  auth: process.env.REPLICATE_API_TOKEN,
+const openai = new OpenAI({
+  apiKey: process.env.OPENAI_API_KEY,
 });
 
 exports.handler = async function (event) {
@@ -140,32 +214,32 @@ exports.handler = async function (event) {
   try {
     const { metarData, sigmetData, route } = JSON.parse(event.body);
 
-    // We combine the system and user prompts for Replicate's input format
-    const input = {
-      top_p: 0.9,
-      prompt: `
-        [INST] You are an expert aviation meteorologist providing a go/no-go flight briefing. Provide a concise, one-paragraph summary (under 80 words). Start your summary with one of three phrases: "Safe to proceed:", "Travel with caution:", or "Unsafe to proceed:". Briefly explain the reason for your assessment. [/INST]
+    const userPrompt = `
+      Analyze the following METAR and SIGMET data for the flight route: ${route.join(" -> ")}.
+      
+      METAR Data (Airport Conditions):
+      ${JSON.stringify(metarData, null, 2)}
 
-        Analyze the following METAR and SIGMET data for the flight route: ${route.join(" -> ")}.
+      SIGMET Data (Significant En-route Weather):
+      ${JSON.stringify(sigmetData, null, 2)}
+    `;
 
-        METAR Data (Airport Conditions):
-        ${JSON.stringify(metarData, null, 2)}
-
-        SIGMET Data (Significant En-route Weather):
-        ${JSON.stringify(sigmetData, null, 2)}
-      `,
-      temperature: 0.6,
-      max_new_tokens: 256,
-    };
-
-    // Make the API call to Replicate using the official Llama 3 70B model
-    const output = await replicate.run(
-      "meta/meta-llama-3-8b-instruct",
-      { input }
-    );
-
-    // The output is an array of strings; we join them to form the full summary.
-    const summaryText = output.join("");
+    const completion = await openai.chat.completions.create({
+      messages: [
+        {
+          role: "system",
+          content: `You are an expert aviation meteorologist providing a go/no-go flight briefing. Provide a concise, one-paragraph summary (under 80 words). Start your summary with one of three phrases: "Safe to proceed:", "Travel with caution:", or "Unsafe to proceed:". Briefly explain the reason for your assessment.`,
+        },
+        {
+          role: "user",
+          content: userPrompt,
+        },
+      ],
+      // Use gpt-4o, OpenAI's latest and globally available model
+      model: "gpt-4o",
+    });
+    
+    const summaryText = completion.choices[0].message.content;
 
     return {
       statusCode: 200,
@@ -173,10 +247,10 @@ exports.handler = async function (event) {
     };
 
   } catch (error) {
-    console.error("Error calling Replicate API:", error);
+    console.error("Error calling OpenAI API:", error);
     return {
       statusCode: 500,
-      body: JSON.stringify({ error: "Failed to get AI briefing from Replicate." }),
+      body: JSON.stringify({ error: "Failed to get AI briefing from OpenAI." }),
     };
   }
 };
