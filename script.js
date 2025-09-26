@@ -173,8 +173,8 @@ async function fetchTafData(icaoCodes) {
 }
 
 async function fetchPirepData() {
-    // The endpoint is "pirep", not "aircraftreport"
-    const url = `${AWC_API_BASE_URL}pirep?format=json&age=60`;
+    // The correct parameter is "hoursBeforeNow", not "age". This fetches reports from the last hour.
+    const url = `${AWC_API_BASE_URL}pirep?format=json&hoursBeforeNow=1`;
     try {
         const response = await fetch(url);
         if (!response.ok) throw new Error(`Failed to fetch PIREP data. Status: ${response.status}`);
