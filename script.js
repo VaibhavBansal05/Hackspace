@@ -173,8 +173,8 @@ async function fetchTafData(icaoCodes) {
 }
 
 async function fetchPirepData() {
-    // Fetch all PIREPs within the last hour for the AI to analyze for relevance
-    const url = `${AWC_API_BASE_URL}aircraftreport?format=json&age=60`;
+    // The endpoint is "pirep", not "aircraftreport"
+    const url = `${AWC_API_BASE_URL}pirep?format=json&age=60`;
     try {
         const response = await fetch(url);
         if (!response.ok) throw new Error(`Failed to fetch PIREP data. Status: ${response.status}`);
