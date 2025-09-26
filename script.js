@@ -200,9 +200,12 @@ async function fetchPirepData(icaoCodes) {
     if (icaoCodes.length === 1) {
         url = `${AWC_API_BASE_URL}pirep?format=json&hoursBeforeNow=1&distance=150&location=${icaoCodes[0]}`;
     } else {
-        url = `${AWC_API_BASE_URL}pirep?format=json&hoursBeforeNow=1&distance=50&route=${icaoCodes.join(',')}`;
+        // The 'route' parameter only accepts two points. We'll use the first and last airports from the input.
+        const origin = icaoCodes[0];
+        const destination = icaoCodes[icaoCodes.length - 1];
+        url = `${AWC_API_BASE_URL}pirep?format=json&hoursBeforeNow=1&distance=50&route=${origin},${destination}`;
     }
-    
+
     try {
         const response = await fetch(url);
         if (!response.ok) throw new Error(`Failed to fetch PIREP data. Status: ${response.status}`);
