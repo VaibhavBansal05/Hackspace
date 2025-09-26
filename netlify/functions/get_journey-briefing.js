@@ -670,9 +670,13 @@ exports.handler = async (event, context) => {
       - Any significant alerts pilots should note
     `;
 
+    // // Call Hugging Face Inference API
+    // const HF_API_URL =
+    //   "https://api-inference.huggingface.co/models/mistralai/Mistral-7B-Instruct-v0.2";
+
     // Call Hugging Face Inference API
     const HF_API_URL =
-      "https://api-inference.huggingface.co/models/mistralai/Mistral-7B-Instruct-v0.2";
+      "https://api-inference.huggingface.co/models/facebook/bart-large-cnn";
     const HF_API_KEY = process.env.HF_API_KEY;
 
     const response = await fetch(HF_API_URL, {
