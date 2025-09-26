@@ -160,7 +160,7 @@ exports.handler = async function (event) {
 
     // Make the API call to Replicate using the official Llama 3 70B model
     const output = await replicate.run(
-      "meta/meta-llama-3-70b-instruct",
+      "meta/meta-llama-3-8b-instruct",
       { input }
     );
 
